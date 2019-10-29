@@ -1,91 +1,52 @@
-package test;
+package move;
 
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.util.Vector;
 
-public class DoInvoke {
+public class MoveFile {
 
+	private Vector<String> ver =new Vector<String>();
+	
 	public static void main(String[] args) {
-		
-		
 		// TODO Auto-generated method stub
-		TestBean testBean = new TestBean();
-		testBean.setName1("name11");
-		testBean.setName2("name22");
-		testBean.setTable1("table11");
-		testBean.setTable2("table22");
-		Map<String,String> nametransfer = new HashMap<String,String> ();
-		nametransfer.put("name11", "qi");
-		nametransfer.put("name22", "fu");
-		Map<String,String> tabletransfer = new HashMap<String,String> ();
-		tabletransfer.put("table11", "ming");
-		tabletransfer.put("table22", "yao");
-		invoke(testBean , nametransfer, tabletransfer);
 
+		MoveFile moveFile = new MoveFile();
+		moveFile.move();
 	}
 	
-	public static TestBean invoke (TestBean testBean,Map<String,String> nametransfer,Map<String,String> tabletransfer) {
-		
-		Arrays.asList(testBean.getClass().getDeclaredFields()).stream().forEach(f->{
-			f.setAccessible(true);
+	public void move() {
+		String path = "C:\\testMovefile\\springboot2-jpa-crud-example";
+		ver.add(path);
+        while(ver.size()>0){
+            File[] files = new File(ver.get(0).toString()).listFiles();    
+            ver.remove(0);
+            
+            for(File file:files){
+                String tmp=file.getAbsolutePath();
+                if(file.isDirectory()){
+                	ver.add(tmp);
+                }else {
+                	
+                	String fileName = file.getName();
+                	System.out.println(file.getAbsolutePath());
+                	String folder = "dummy";
+                    if (fileName.contains(".")) {
+                		
+                		 folder = fileName.substring(fileName.lastIndexOf(".")+1,fileName.length());
+                	}
+                    folder = "C:\\testMovefile\\testFolder1\\"+
+                    		folder+File.separator;
+//                	System.out.println(folder);
+                	File folderFile = new File (folder);
+                	if(!folderFile.exists()) {
+                		folderFile.mkdir();
+                	}
+                	file.renameTo(new File (folder+file.getName()) );
+                }    
 
-			try {
-				if(f.getName().startsWith("name")) {
-					String value = f.get(testBean).toString();
-					f.set(testBean, nametransfer.get(value));
-				}else {
-					String value = f.get(testBean).toString();
-					f.set(testBean, tabletransfer.get(value));
-				}
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		});
-		Arrays.asList(testBean.getClass().getDeclaredFields()).parallelStream().filter
-		(f->f.getName().startsWith("name")).forEach
-		(f->{
-			f.setAccessible(true);
+            }
+        }
 
-			try {
-				String value = f.get(testBean).toString();
-				f.set(testBean, nametransfer.get(value));
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		});
-		Arrays.asList(testBean.getClass().getDeclaredFields()).parallelStream().filter
-		(f->f.getName().startsWith("table")).forEach
-		(f->{
-			f.setAccessible(true);
-
-			try {
-				String value = f.get(testBean).toString();
-				f.set(testBean, tabletransfer.get(value));
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		});
-		Arrays.asList(testBean.getClass().getDeclaredFields()).parallelStream().map(a->a.getName()).filter(name->name.startsWith("table")).forEach(System.out::println);
-		System.out.println(testBean.getName1()+testBean.getTable1());
-		System.out.println(testBean.getName2()+testBean.getTable2());
-		return null;
 	}
 
 }
